@@ -18,25 +18,23 @@ export const ColorSlider = forwardRef<HTMLInputElement, ColorSliderProps>(
 
     return (
       <div className={className}>
-        <div className="flex items-center justify-between mb-0.5">
-          <label className="text-xs font-semibold text-forest">
+        <div className="flex items-center justify-between mb-0">
+          <label className="text-[10px] font-semibold text-forest">
             {label}
           </label>
-          <span className="text-xs text-leaf">
+          <span className="text-[10px] text-leaf">
             {value}{unit}
           </span>
         </div>
-        <div className="relative">
-          <input
-            ref={ref}
-            type="range"
-            min={min}
-            max={max}
-            value={value}
-            className={`w-full h-2 bg-gradient-to-r ${sliderGradient} rounded-lg appearance-none cursor-pointer`}
-            {...props}
-          />
-        </div>
+        <input
+          ref={ref}
+          type="range"
+          min={min}
+          max={max}
+          value={value}
+          className={`w-full h-1.5 bg-gradient-to-r ${sliderGradient} rounded-lg appearance-none cursor-pointer`}
+          {...props}
+        />
       </div>
     );
   }

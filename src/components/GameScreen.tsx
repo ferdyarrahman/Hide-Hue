@@ -90,17 +90,17 @@ export function GameScreen({
   const targetColor = hslToRgb(target.hue, target.saturation, target.brightness);
 
   return (
-    <div className="flex flex-col h-screen bg-cream">
+    <div className="flex flex-col h-[100dvh] h-screen bg-cream">
       {/* Game Header */}
-      <header className="flex items-center justify-between p-4 bg-white/80 backdrop-blur-sm z-10">
+      <header className="flex items-center justify-between px-3 py-2 bg-white/80 backdrop-blur-sm z-10 shrink-0">
         <button
           onClick={handleBack}
-          className="p-2 text-forest hover:text-leaf transition-colors"
+          className="p-1.5 text-forest hover:text-leaf transition-colors"
           aria-label="Back to home"
         >
           <svg
-            width="24"
-            height="24"
+            width="22"
+            height="22"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -113,18 +113,18 @@ export function GameScreen({
         </button>
 
         <div className="text-center">
-          <p className="text-sm text-leaf">Level {levelNumber}</p>
-          <h2 className="text-lg font-bold text-forest">{levelName}</h2>
+          <p className="text-xs text-leaf leading-tight">Level {levelNumber}</p>
+          <h2 className="text-base font-bold text-forest leading-tight">{levelName}</h2>
         </div>
 
         <div className="flex gap-1">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="relative w-5 h-5">
+            <div key={i} className="relative w-4 h-4">
               <Image
                 src="/assets/ui/ui_star.png"
                 alt="Star"
                 fill
-                sizes="20px"
+                sizes="16px"
                 style={{
                   objectFit: "contain",
                   opacity: i <= stars ? 1 : 0.3,
@@ -136,8 +136,7 @@ export function GameScreen({
       </header>
 
       {/* Environment Stage */}
-      <div className="flex-1 relative overflow-hidden">
-        {/* Background Image */}
+      <div className="flex-1 min-h-0 relative overflow-hidden">
         <Image
           src={background}
           alt={levelName}
@@ -149,54 +148,49 @@ export function GameScreen({
           priority
         />
 
-        {/* Target Color Hint */}
         {showHint && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm rounded-2xl p-3 flex items-center gap-3 animate-pulse z-20">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-forest font-semibold">Target:</span>
-              <div
-                className="w-8 h-8 rounded-full border-2 border-white shadow-md"
-                style={{ backgroundColor: targetColor }}
-              />
-            </div>
-            <span className="text-xs text-leaf">Match this color!</span>
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm rounded-xl px-3 py-1.5 flex items-center gap-2 animate-pulse z-20">
+            <span className="text-xs text-forest font-semibold">Target:</span>
+            <div
+              className="w-5 h-5 rounded-full border-2 border-white shadow-md"
+              style={{ backgroundColor: targetColor }}
+            />
+            <span className="text-[10px] text-leaf">Match this color!</span>
           </div>
         )}
 
-        {/* Hiding zone indicator */}
-        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-32 h-32 border-2 border-dashed border-white/50 rounded-full" />
+        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 w-28 h-28 border-2 border-dashed border-white/50 rounded-full" />
 
-        {/* Chameleon */}
-        <div className="absolute bottom-24 left-1/2 -translate-x-1/2">
+        <div className="absolute bottom-20 left-1/2 -translate-x-1/2">
           <Chameleon
             expression={expression}
             hue={hue}
             saturation={saturation}
             brightness={brightness}
-            size={120}
+            size={100}
             useMain={true}
           />
         </div>
       </div>
 
       {/* Color Controls */}
-      <div className="bg-white/90 backdrop-blur-sm px-3 pt-2 pb-3 rounded-t-3xl z-10">
+      <div className="bg-white/95 backdrop-blur-sm px-3 pt-2 pb-3 rounded-t-2xl z-10 shrink-0">
         {/* Color Comparison */}
-        <div className="flex items-center justify-center gap-3 mb-2">
-          <div className="text-center">
+        <div className="flex items-center justify-center gap-3 mb-1.5">
+          <div className="flex items-center gap-1.5">
             <div
-              className="w-10 h-10 rounded-full border-2 border-forest shadow-md mx-auto"
+              className="w-7 h-7 rounded-full border-2 border-forest shadow-sm"
               style={{ backgroundColor: playerColor }}
             />
-            <span className="text-[10px] text-leaf mt-0.5 block">Your Color</span>
+            <span className="text-[10px] text-leaf">You</span>
           </div>
-          <div className="text-xl text-forest">→</div>
-          <div className="text-center">
+          <div className="text-lg text-forest">→</div>
+          <div className="flex items-center gap-1.5">
             <div
-              className="w-10 h-10 rounded-full border-2 border-forest shadow-md mx-auto"
+              className="w-7 h-7 rounded-full border-2 border-forest shadow-sm"
               style={{ backgroundColor: targetColor }}
             />
-            <span className="text-[10px] text-leaf mt-0.5 block">Target</span>
+            <span className="text-[10px] text-leaf">Target</span>
           </div>
         </div>
 
@@ -209,11 +203,10 @@ export function GameScreen({
           onBrightnessChange={handleBrightnessChange}
         />
 
-        {/* Hide Button */}
-        <div className="mt-3">
+        <div className="mt-2">
           <Button
             onClick={handleHide}
-            size="md"
+            size="sm"
             className="w-full"
           >
             HIDE NOW

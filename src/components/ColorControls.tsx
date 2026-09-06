@@ -20,7 +20,7 @@ export function ColorControls({
   onBrightnessChange,
 }: ColorControlsProps) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-1">
       <ColorSlider
         label="HUE"
         value={hue}
