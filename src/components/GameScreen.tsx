@@ -149,13 +149,12 @@ export function GameScreen({
         />
 
         {showHint && (
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm rounded-xl px-3 py-1.5 flex items-center gap-2 animate-pulse z-20">
-            <span className="text-xs text-forest font-semibold">Target:</span>
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1.5 animate-pulse z-20">
             <div
-              className="w-5 h-5 rounded-full border-2 border-white shadow-md"
+              className="w-3 h-3 rounded-full border border-white shadow-sm"
               style={{ backgroundColor: targetColor }}
             />
-            <span className="text-[10px] text-leaf">Match this color!</span>
+            <span className="text-[9px] text-forest font-medium">Match this!</span>
           </div>
         )}
 
@@ -175,23 +174,14 @@ export function GameScreen({
 
       {/* Color Controls */}
       <div className="bg-white/95 backdrop-blur-sm px-3 pt-2 pb-3 rounded-t-2xl z-10 shrink-0">
-        {/* Color Comparison */}
-        <div className="flex items-center justify-center gap-3 mb-1.5">
-          <div className="flex items-center gap-1.5">
-            <div
-              className="w-7 h-7 rounded-full border-2 border-forest shadow-sm"
-              style={{ backgroundColor: playerColor }}
-            />
-            <span className="text-[10px] text-leaf">You</span>
-          </div>
-          <div className="text-lg text-forest">→</div>
-          <div className="flex items-center gap-1.5">
-            <div
-              className="w-7 h-7 rounded-full border-2 border-forest shadow-sm"
-              style={{ backgroundColor: targetColor }}
-            />
-            <span className="text-[10px] text-leaf">Target</span>
-          </div>
+        {/* Target Info */}
+        <div className="flex items-center justify-center gap-2 mb-1.5">
+          <span className="text-[10px] text-forest font-semibold">TARGET:</span>
+          <div
+            className="w-4 h-4 rounded-full border border-forest shadow-sm"
+            style={{ backgroundColor: targetColor }}
+          />
+          <span className="text-[10px] text-leaf">Match this color to hide!</span>
         </div>
 
         <ColorControls
