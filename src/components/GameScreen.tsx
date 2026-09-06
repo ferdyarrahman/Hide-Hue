@@ -86,101 +86,71 @@ export function GameScreen({
     onBack();
   }, [audio, onBack]);
 
-  const playerColor = hslToRgb(hue, saturation, brightness);
   const targetColor = hslToRgb(target.hue, target.saturation, target.brightness);
 
   return (
-    <div className="flex flex-col h-[100dvh] h-screen bg-cream">
-      {/* Game Header */}
-      <header className="flex items-center justify-between px-3 py-2 bg-white/80 backdrop-blur-sm z-10 shrink-0">
+    <div className="relative h-[100dvh] h-screen overflow-hidden bg-cream">
+      {/* Background Image - full screen */}
+      <Image
+        src={background}
+        alt={levelName}
+        fill
+        sizes="100vw"
+        style={{ objectFit: "cover" }}
+        priority
+      />
+
+      {/* Header - overlay top */}
+      <header className="absolute top-0 left-0 right-0 flex items-center justify-between px-3 py-2 bg-black/30 backdrop-blur-sm z-20">
         <button
           onClick={handleBack}
-          className="p-1.5 text-forest hover:text-leaf transition-colors"
+          className="p-1.5 text-white hover:text-leaf transition-colors"
           aria-label="Back to home"
         >
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
         </button>
 
         <div className="text-center">
-          <p className="text-xs text-leaf leading-tight">Level {levelNumber}</p>
-          <h2 className="text-base font-bold text-forest leading-tight">{levelName}</h2>
+          <p className="text-[10px] text-white/80 leading-tight">Level {levelNumber}</p>
+          <h2 className="text-sm font-bold text-white leading-tight">{levelName}</h2>
         </div>
 
         <div className="flex gap-1">
           {[1, 2, 3].map((i) => (
             <div key={i} className="relative w-4 h-4">
-              <Image
-                src="/assets/ui/ui_star.png"
-                alt="Star"
-                fill
-                sizes="16px"
-                style={{
-                  objectFit: "contain",
-                  opacity: i <= stars ? 1 : 0.3,
-                }}
-              />
+              <Image src="/assets/ui/ui_star.png" alt="Star" fill sizes="16px" style={{ objectFit: "contain", opacity: i <= stars ? 1 : 0.3 }} />
             </div>
           ))}
         </div>
       </header>
 
-      {/* Environment Stage */}
-      <div className="flex-1 min-h-0 relative overflow-hidden">
-        <Image
-          src={background}
-          alt={levelName}
-          fill
-          sizes="100vw"
-          style={{
-            objectFit: "cover",
-          }}
-          priority
-        />
-
-        {showHint && (
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1.5 animate-pulse z-20">
-            <div
-              className="w-3 h-3 rounded-full border border-white shadow-sm"
-              style={{ backgroundColor: targetColor }}
-            />
-            <span className="text-[9px] text-forest font-medium">Match this!</span>
-          </div>
-        )}
-
-        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 w-28 h-28 border-2 border-dashed border-white/50 rounded-full" />
-
-        <div className="absolute bottom-20 left-1/2 -translate-x-1/2">
-          <Chameleon
-            expression={expression}
-            hue={hue}
-            saturation={saturation}
-            brightness={brightness}
-            size={100}
-            useMain={true}
-          />
+      {/* Target Hint - overlay top below header */}
+      {showHint && (
+        <div className="absolute top-12 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-sm rounded-full px-2.5 py-1 flex items-center gap-1.5 animate-pulse z-20">
+          <div className="w-3 h-3 rounded-full border border-white" style={{ backgroundColor: targetColor }} />
+          <span className="text-[9px] text-white font-medium">Match this!</span>
         </div>
+      )}
+
+      {/* Chameleon - positioned above controls panel */}
+      <div className="absolute left-1/2 -translate-x-1/2 z-10" style={{ bottom: 'calc(28% + 16px)' }}>
+        <Chameleon
+          expression={expression}
+          hue={hue}
+          saturation={saturation}
+          brightness={brightness}
+          size={100}
+          useMain={true}
+        />
       </div>
 
-      {/* Color Controls */}
-      <div className="bg-white/95 backdrop-blur-sm px-3 pt-2 pb-3 rounded-t-2xl z-10 shrink-0">
-        {/* Target Info */}
+      {/* Controls Panel - fixed at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm px-3 pt-2 pb-[max(12px,env(safe-area-inset-bottom))] rounded-t-2xl z-20">
         <div className="flex items-center justify-center gap-2 mb-1.5">
           <span className="text-[10px] text-forest font-semibold">TARGET:</span>
-          <div
-            className="w-4 h-4 rounded-full border border-forest shadow-sm"
-            style={{ backgroundColor: targetColor }}
-          />
+          <div className="w-4 h-4 rounded-full border border-forest shadow-sm" style={{ backgroundColor: targetColor }} />
           <span className="text-[10px] text-leaf">Match this color to hide!</span>
         </div>
 
@@ -194,11 +164,7 @@ export function GameScreen({
         />
 
         <div className="mt-2">
-          <Button
-            onClick={handleHide}
-            size="sm"
-            className="w-full"
-          >
+          <Button onClick={handleHide} size="sm" className="w-full">
             HIDE NOW
           </Button>
         </div>
