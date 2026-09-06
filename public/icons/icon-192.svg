@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="32" fill="#4a7c59"/>
+  <circle cx="96" cy="80" r="40" fill="#7ba05b"/>
+  <circle cx="110" cy="70" r="12" fill="white"/>
+  <circle cx="114" cy="68" r="6" fill="#2d4a3e"/>
+  <path d="M60 120 Q96 140 132 120" stroke="#2d4a3e" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <text x="96" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="white">Hide & Hue</text>
+</svg>
