@@ -180,23 +180,23 @@ export function GameScreen({
       </div>
 
       {/* Color Controls */}
-      <div className="bg-white/90 backdrop-blur-sm p-4 rounded-t-3xl z-10">
+      <div className="bg-white/90 backdrop-blur-sm px-3 pt-2 pb-3 rounded-t-3xl z-10">
         {/* Color Comparison */}
-        <div className="flex items-center justify-center gap-4 mb-4">
+        <div className="flex items-center justify-center gap-3 mb-2">
           <div className="text-center">
             <div
-              className="w-12 h-12 rounded-full border-2 border-forest shadow-md mx-auto"
+              className="w-10 h-10 rounded-full border-2 border-forest shadow-md mx-auto"
               style={{ backgroundColor: playerColor }}
             />
-            <span className="text-xs text-leaf mt-1 block">Your Color</span>
+            <span className="text-[10px] text-leaf mt-0.5 block">Your Color</span>
           </div>
-          <div className="text-2xl text-forest">→</div>
+          <div className="text-xl text-forest">→</div>
           <div className="text-center">
             <div
-              className="w-12 h-12 rounded-full border-2 border-forest shadow-md mx-auto"
+              className="w-10 h-10 rounded-full border-2 border-forest shadow-md mx-auto"
               style={{ backgroundColor: targetColor }}
             />
-            <span className="text-xs text-leaf mt-1 block">Target</span>
+            <span className="text-[10px] text-leaf mt-0.5 block">Target</span>
           </div>
         </div>
 
@@ -210,10 +210,10 @@ export function GameScreen({
         />
 
         {/* Hide Button */}
-        <div className="mt-6">
+        <div className="mt-3">
           <Button
             onClick={handleHide}
-            size="lg"
+            size="md"
             className="w-full"
           >
             HIDE NOW

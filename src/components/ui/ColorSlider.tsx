@@ -18,9 +18,14 @@ export const ColorSlider = forwardRef<HTMLInputElement, ColorSliderProps>(
 
     return (
       <div className={className}>
-        <label className="block text-sm font-semibold text-forest mb-1">
-          {label}
-        </label>
+        <div className="flex items-center justify-between mb-0.5">
+          <label className="text-xs font-semibold text-forest">
+            {label}
+          </label>
+          <span className="text-xs text-leaf">
+            {value}{unit}
+          </span>
+        </div>
         <div className="relative">
           <input
             ref={ref}
@@ -32,10 +37,6 @@ export const ColorSlider = forwardRef<HTMLInputElement, ColorSliderProps>(
             {...props}
           />
         </div>
-        <p className="text-xs text-leaf mt-1">
-          {value}
-          {unit}
-        </p>
       </div>
     );
   }
