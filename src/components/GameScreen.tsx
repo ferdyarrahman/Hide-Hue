@@ -134,39 +134,40 @@ export function GameScreen({
         </div>
       )}
 
-      {/* Chameleon - positioned above controls panel */}
-      <div className="absolute left-1/2 -translate-x-1/2 z-10" style={{ bottom: 'calc(28% + 16px)' }}>
-        <Chameleon
-          expression={expression}
-          hue={hue}
-          saturation={saturation}
-          brightness={brightness}
-          size={100}
-          useMain={true}
-        />
-      </div>
-
-      {/* Controls Panel - fixed at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm px-3 pt-2 pb-[max(12px,env(safe-area-inset-bottom))] rounded-t-2xl z-20">
-        <div className="flex items-center justify-center gap-2 mb-1.5">
-          <span className="text-[10px] text-forest font-semibold">TARGET:</span>
-          <div className="w-4 h-4 rounded-full border border-forest shadow-sm" style={{ backgroundColor: targetColor }} />
-          <span className="text-[10px] text-leaf">Match this color to hide!</span>
+      {/* Chameleon + Controls - centered together */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
+        <div className="pointer-events-auto">
+          <Chameleon
+            expression={expression}
+            hue={hue}
+            saturation={saturation}
+            brightness={brightness}
+            size={100}
+            useMain={true}
+          />
         </div>
 
-        <ColorControls
-          hue={hue}
-          saturation={saturation}
-          brightness={brightness}
-          onHueChange={handleHueChange}
-          onSaturationChange={handleSaturationChange}
-          onBrightnessChange={handleBrightnessChange}
-        />
+        <div className="w-[85%] max-w-[360px] mt-2 bg-white/95 backdrop-blur-sm px-3 pt-2 pb-3 rounded-2xl shadow-lg pointer-events-auto">
+          <div className="flex items-center justify-center gap-2 mb-1.5">
+            <span className="text-[10px] text-forest font-semibold">TARGET:</span>
+            <div className="w-4 h-4 rounded-full border border-forest shadow-sm" style={{ backgroundColor: targetColor }} />
+            <span className="text-[10px] text-leaf">Match this color to hide!</span>
+          </div>
 
-        <div className="mt-2">
-          <Button onClick={handleHide} size="sm" className="w-full">
-            HIDE NOW
-          </Button>
+          <ColorControls
+            hue={hue}
+            saturation={saturation}
+            brightness={brightness}
+            onHueChange={handleHueChange}
+            onSaturationChange={handleSaturationChange}
+            onBrightnessChange={handleBrightnessChange}
+          />
+
+          <div className="mt-2">
+            <Button onClick={handleHide} size="sm" className="w-full">
+              HIDE NOW
+            </Button>
+          </div>
         </div>
       </div>
     </div>
