@@ -94,29 +94,15 @@ export function ResultPanel({
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
       <Card className="w-full max-w-sm mx-4 text-center">
-        {/* VFX Image */}
-        <div className="relative w-24 h-24 mx-auto mb-4">
-          <Image
-            src={isFound ? "/assets/vfx/vfx_failure.png" : "/assets/vfx/vfx_success.png"}
-            alt={isFound ? "Found" : "Success"}
-            fill
-            sizes="96px"
-            style={{
-              objectFit: "contain",
-            }}
-            priority
-          />
-        </div>
-
         {/* Stars */}
-        <div className="flex justify-center gap-2 mb-4">
+        <div className="flex justify-center gap-2 mb-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="relative w-10 h-10">
+            <div key={i} className="relative w-8 h-8">
               <Image
                 src="/assets/ui/ui_star.png"
                 alt="Star"
                 fill
-                sizes="40px"
+                sizes="32px"
                 style={{
                   objectFit: "contain",
                   opacity: i <= stars ? 1 : 0.3,
@@ -130,14 +116,14 @@ export function ResultPanel({
 
         {/* Result Message */}
         <h2
-          className={`text-2xl font-bold mb-2 ${
+          className={`text-xl font-bold mb-1 ${
             isFound ? "text-coral" : "text-leaf"
           }`}
         >
           {isFound ? "Found!" : "Safe!"}
         </h2>
 
-        <p className="text-forest mb-4">
+        <p className="text-sm text-forest mb-3">
           {isFound
             ? "The predator spotted you! Try adjusting your colors."
             : score.rating === "perfect"
@@ -148,81 +134,81 @@ export function ResultPanel({
         </p>
 
         {/* Color Comparison */}
-        <div className="flex items-center justify-center gap-4 mb-4 p-3 bg-cream/50 rounded-xl">
-          <div className="text-center">
+        <div className="flex items-center justify-center gap-3 mb-3 p-2 bg-cream/50 rounded-xl">
+          <div className="flex items-center gap-1.5">
             <div
-              className="w-12 h-12 rounded-full border-2 border-forest shadow-md mx-auto"
+              className="w-7 h-7 rounded-full border-2 border-forest shadow-sm"
               style={{ backgroundColor: playerRgb }}
             />
-            <span className="text-xs text-leaf mt-1 block">Yours</span>
+            <span className="text-[10px] text-leaf">Yours</span>
           </div>
-          <div className="text-lg text-forest">→</div>
-          <div className="text-center">
+          <div className="text-sm text-forest">→</div>
+          <div className="flex items-center gap-1.5">
             <div
-              className="w-12 h-12 rounded-full border-2 border-forest shadow-md mx-auto"
+              className="w-7 h-7 rounded-full border-2 border-forest shadow-sm"
               style={{ backgroundColor: targetRgb }}
             />
-            <span className="text-xs text-leaf mt-1 block">Target</span>
+            <span className="text-[10px] text-leaf">Target</span>
           </div>
         </div>
 
         {/* Color Hint */}
         {isFound && (
-          <p className="text-sm text-coral mb-4 italic">{colorHint}</p>
+          <p className="text-xs text-coral mb-3 italic">{colorHint}</p>
         )}
 
         {/* Camouflage Score */}
-        <div className="mb-4">
-          <div className="text-4xl font-bold text-forest mb-1">
+        <div className="mb-3">
+          <div className="text-3xl font-bold text-forest mb-0.5">
             {score.total}%
           </div>
-          <p className="text-sm text-leaf">Camouflage Match</p>
+          <p className="text-xs text-leaf">Camouflage Match</p>
         </div>
 
         {/* Score Breakdown */}
-        <div className="bg-cream/50 rounded-2xl p-4 mb-6">
-          <h3 className="text-sm font-semibold text-forest mb-3">
+        <div className="bg-cream/50 rounded-xl p-3 mb-4">
+          <h3 className="text-xs font-semibold text-forest mb-2">
             Score Breakdown
           </h3>
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-forest">Hue</span>
+              <span className="text-xs text-forest">Hue</span>
               <div className="flex items-center gap-2">
-                <div className="w-24 h-2 bg-forest/20 rounded-full overflow-hidden">
+                <div className="w-20 h-1.5 bg-forest/20 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-leaf rounded-full"
                     style={{ width: `${score.breakdown.hue}%` }}
                   />
                 </div>
-                <span className="text-sm text-leaf w-8 text-right">
+                <span className="text-xs text-leaf w-8 text-right">
                   {score.breakdown.hue}%
                 </span>
               </div>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-forest">Saturation</span>
+              <span className="text-xs text-forest">Saturation</span>
               <div className="flex items-center gap-2">
-                <div className="w-24 h-2 bg-forest/20 rounded-full overflow-hidden">
+                <div className="w-20 h-1.5 bg-forest/20 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-leaf rounded-full"
                     style={{ width: `${score.breakdown.saturation}%` }}
                   />
                 </div>
-                <span className="text-sm text-leaf w-8 text-right">
+                <span className="text-xs text-leaf w-8 text-right">
                   {score.breakdown.saturation}%
                 </span>
               </div>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-forest">Brightness</span>
+              <span className="text-xs text-forest">Brightness</span>
               <div className="flex items-center gap-2">
-                <div className="w-24 h-2 bg-forest/20 rounded-full overflow-hidden">
+                <div className="w-20 h-1.5 bg-forest/20 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-leaf rounded-full"
                     style={{ width: `${score.breakdown.brightness}%` }}
                   />
                 </div>
-                <span className="text-sm text-leaf w-8 text-right">
+                <span className="text-xs text-leaf w-8 text-right">
                   {score.breakdown.brightness}%
                 </span>
               </div>
@@ -231,12 +217,12 @@ export function ResultPanel({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col gap-3">
-          <Button onClick={handleRetry} variant="secondary" className="w-full">
+        <div className="flex flex-col gap-2">
+          <Button onClick={handleRetry} variant="secondary" className="w-full" size="sm">
             Try Again
           </Button>
           {!isLastLevel && (
-            <Button onClick={handleNext} className="w-full">
+            <Button onClick={handleNext} className="w-full" size="sm">
               Next Level
             </Button>
           )}
