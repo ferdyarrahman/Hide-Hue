@@ -1,3 +1,5 @@
+import { getStarsFromScore } from "@/game/engine/camouflage";
+
 export interface Progress {
   unlockedLevel: number;
   bestScores: Record<string, number>;
@@ -44,8 +46,7 @@ export function saveProgress(progress: Progress): void {
 export function updateProgress(
   levelId: string,
   levelIndex: number,
-  score: number,
-  stars: number
+  score: number
 ): Progress {
   const progress = loadProgress();
 
@@ -82,11 +83,7 @@ export function getLevelStars(levelId: string): number {
     return 0;
   }
 
-  const score = progress.bestScores[levelId] || 0;
-  if (score >= 90) return 3;
-  if (score >= 80) return 2;
-  if (score >= 70) return 1;
-  return 0;
+  return getStarsFromScore(progress.bestScores[levelId] || 0);
 }
 
 export function resetProgress(): void {

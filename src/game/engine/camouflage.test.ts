@@ -1,5 +1,6 @@
 import {
   calculateCamouflageScore,
+  calculateFinalScore,
   getStarsFromRating,
   getResultMessage,
   ColorValue,
@@ -68,5 +69,41 @@ describe("Camouflage Engine", () => {
     expect(getResultMessage("safe", false)).toContain("Good job");
     expect(getResultMessage("risky", false)).toContain("close");
     expect(getResultMessage("found", true)).toContain("found you");
+  });
+
+  describe("calculateFinalScore", () => {
+    const perfectMatch = calculateCamouflageScore(target, target);
+
+    it("awards max bonuses for a fast, perfect hide", () => {
+      const result = calculateFinalScore(perfectMatch, 5_000);
+      expect(result).toEqual({
+        base: 500,
+        camouflageBonus: 500,
+        timeBonus: 300,
+        perfectBonus: 200,
+        total: 1500,
+      });
+    });
+
+    it("tapers the time bonus linearly between 10s and 60s", () => {
+      const fast = calculateFinalScore(perfectMatch, 10_000);
+      const mid = calculateFinalScore(perfectMatch, 35_000);
+      const slow = calculateFinalScore(perfectMatch, 60_000);
+
+      expect(fast.timeBonus).toBe(300);
+      expect(mid.timeBonus).toBeGreaterThan(0);
+      expect(mid.timeBonus).toBeLessThan(300);
+      expect(slow.timeBonus).toBe(0);
+    });
+
+    it("never awards a perfect bonus for a non-perfect rating", () => {
+      const found = calculateCamouflageScore(
+        { hue: 0, saturation: 0, brightness: 0 },
+        target
+      );
+      const result = calculateFinalScore(found, 5_000);
+      expect(result.perfectBonus).toBe(0);
+      expect(result.total).toBe(result.base + result.camouflageBonus + result.timeBonus);
+    });
   });
 });

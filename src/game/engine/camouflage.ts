@@ -30,7 +30,7 @@ function calculateHueSimilarity(hue1: number, hue2: number): number {
   return 0;
 }
 
-function calculateSimilarity(value1: number, value2: number, max: number): number {
+function calculateSimilarity(value1: number, value2: number): number {
   const diff = Math.abs(value1 - value2);
   
   if (diff <= 5) return 1;
@@ -42,11 +42,12 @@ function calculateSimilarity(value1: number, value2: number, max: number): numbe
   return 0;
 }
 
-function getRating(score: number): CamouflageScore["rating"] {
-  if (score >= 85) return "perfect";
-  if (score >= 70) return "excellent";
-  if (score >= 55) return "safe";
-  if (score >= 40) return "risky";
+// Thresholds per PRD.md §6.4 — the single source of truth for score -> rating.
+export function getRating(score: number): CamouflageScore["rating"] {
+  if (score >= 90) return "perfect";
+  if (score >= 80) return "excellent";
+  if (score >= 70) return "safe";
+  if (score >= 55) return "risky";
   return "found";
 }
 
@@ -55,20 +56,12 @@ export function calculateCamouflageScore(
   target: ColorValue
 ): CamouflageScore {
   const hueScore = calculateHueSimilarity(player.hue, target.hue);
-  const saturationScore = calculateSimilarity(
-    player.saturation,
-    target.saturation,
-    100
-  );
-  const brightnessScore = calculateSimilarity(
-    player.brightness,
-    target.brightness,
-    100
-  );
+  const saturationScore = calculateSimilarity(player.saturation, target.saturation);
+  const brightnessScore = calculateSimilarity(player.brightness, target.brightness);
 
   let contrastScore = 1;
   if (target.contrast !== undefined && player.contrast !== undefined) {
-    contrastScore = calculateSimilarity(player.contrast, target.contrast, 100);
+    contrastScore = calculateSimilarity(player.contrast, target.contrast);
   }
 
   const detailsScore = target.contrast !== undefined
@@ -103,6 +96,61 @@ export function getStarsFromRating(rating: CamouflageScore["rating"]): number {
     case "found":
       return 0;
   }
+}
+
+// Single source of truth for "best score so far" -> stars (used by progress.ts
+// and anywhere else that only has a stored score, not a live rating).
+export function getStarsFromScore(score: number): number {
+  return getStarsFromRating(getRating(score));
+}
+
+// Points formula per PRD.md §9. This is a separate, purely cosmetic
+// point total for the result screen — it does not feed thresholds,
+// stars or progress unlocking (those stay driven by CamouflageScore.total).
+export interface FinalScore {
+  base: number;
+  camouflageBonus: number;
+  timeBonus: number;
+  perfectBonus: number;
+  total: number;
+}
+
+const BASE_SCORE = 500;
+const MAX_CAMOUFLAGE_BONUS = 500;
+const MAX_TIME_BONUS = 300;
+const PERFECT_BONUS = 200;
+
+// Full time bonus if locked within 10s, tapering linearly to 0 by 60s
+// (PRD §2 targets a round finishing well under the 2-minute success bar).
+const TIME_BONUS_FULL_MS = 10_000;
+const TIME_BONUS_ZERO_MS = 60_000;
+
+function calculateTimeBonus(elapsedMs: number): number {
+  if (elapsedMs <= TIME_BONUS_FULL_MS) return MAX_TIME_BONUS;
+  if (elapsedMs >= TIME_BONUS_ZERO_MS) return 0;
+
+  const progress =
+    (elapsedMs - TIME_BONUS_FULL_MS) / (TIME_BONUS_ZERO_MS - TIME_BONUS_FULL_MS);
+  return Math.round(MAX_TIME_BONUS * (1 - progress));
+}
+
+export function calculateFinalScore(
+  camouflageScore: CamouflageScore,
+  elapsedMs: number
+): FinalScore {
+  const camouflageBonus = Math.round(
+    (camouflageScore.total / 100) * MAX_CAMOUFLAGE_BONUS
+  );
+  const timeBonus = calculateTimeBonus(elapsedMs);
+  const perfectBonus = camouflageScore.rating === "perfect" ? PERFECT_BONUS : 0;
+
+  return {
+    base: BASE_SCORE,
+    camouflageBonus,
+    timeBonus,
+    perfectBonus,
+    total: BASE_SCORE + camouflageBonus + timeBonus + perfectBonus,
+  };
 }
 
 export function getResultMessage(
