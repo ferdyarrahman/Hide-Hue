@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { Chameleon, ChameleonExpression } from "@/components/Chameleon";
@@ -15,7 +15,7 @@ interface GameScreenProps {
   target: ColorValue;
   playerStart: ColorValue;
   stars?: number;
-  onHide: (colors: ColorValue) => void;
+  onHide: (colors: ColorValue, elapsedMs: number) => void;
   onBack: () => void;
 }
 
@@ -44,16 +44,28 @@ export function GameScreen({
   const [hue, setHue] = useState(playerStart.hue);
   const [saturation, setSaturation] = useState(playerStart.saturation);
   const [brightness, setBrightness] = useState(playerStart.brightness);
+  const [contrast, setContrast] = useState(playerStart.contrast ?? 50);
   const [expression, setExpression] = useState<ChameleonExpression>("idle");
   const [showHint, setShowHint] = useState(true);
   const { audio } = useAudio();
+  const startTimeRef = useRef(0);
+  const hasContrast = target.contrast !== undefined;
+
+  // GameScreen is always given a fresh mount when a level starts (page.tsx
+  // only renders it during the "playing" phase, entered from a different
+  // phase every time), so hue/saturation/brightness/contrast/expression are
+  // correctly initialized once from playerStart above — no need to
+  // re-sync them from props here. Only the elapsed-time clock needs an
+  // effect, since reading Date.now() during render is impure.
+  useEffect(() => {
+    startTimeRef.current = Date.now();
+  }, []);
 
   useEffect(() => {
-    setHue(playerStart.hue);
-    setSaturation(playerStart.saturation);
-    setBrightness(playerStart.brightness);
-    setExpression("idle");
-  }, [playerStart, target]);
+    const stopAmbience = audio.playAmbient();
+    return stopAmbience;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowHint(false), 3000);
@@ -75,11 +87,19 @@ export function GameScreen({
     audio.playSliderChange();
   }, [audio]);
 
+  const handleContrastChange = useCallback((value: number) => {
+    setContrast(value);
+    audio.playSliderChange();
+  }, [audio]);
+
   const handleHide = useCallback(() => {
     audio.playHideButton();
     setExpression("hiding");
-    onHide({ hue, saturation, brightness });
-  }, [audio, hue, saturation, brightness, onHide]);
+    onHide(
+      { hue, saturation, brightness, ...(hasContrast ? { contrast } : {}) },
+      Date.now() - startTimeRef.current
+    );
+  }, [audio, hue, saturation, brightness, contrast, hasContrast, onHide]);
 
   const handleBack = useCallback(() => {
     audio.playClick();
@@ -120,7 +140,7 @@ export function GameScreen({
         <div className="flex gap-1">
           {[1, 2, 3].map((i) => (
             <div key={i} className="relative w-4 h-4">
-              <Image src="/assets/ui/ui_star.png" alt="Star" fill sizes="16px" style={{ objectFit: "contain", opacity: i <= stars ? 1 : 0.3 }} />
+              <Image src="/assets/ui/ui_star.webp" alt="Star" fill sizes="16px" style={{ objectFit: "contain", opacity: i <= stars ? 1 : 0.3 }} />
             </div>
           ))}
         </div>
@@ -158,9 +178,11 @@ export function GameScreen({
             hue={hue}
             saturation={saturation}
             brightness={brightness}
+            contrast={hasContrast ? contrast : undefined}
             onHueChange={handleHueChange}
             onSaturationChange={handleSaturationChange}
             onBrightnessChange={handleBrightnessChange}
+            onContrastChange={handleContrastChange}
           />
 
           <div className="mt-2">

@@ -56,10 +56,6 @@ function hslToHex(hue: number, saturation: number, brightness: number): string {
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
-function hslToRgb(hue: number, saturation: number, brightness: number): string {
-  return `hsl(${hue}, ${saturation}%, ${brightness}%)`;
-}
-
 export function Chameleon({
   expression = "idle",
   hue = 120,
@@ -71,6 +67,11 @@ export function Chameleon({
   const [breathOffset, setBreathOffset] = useState(0);
 
   useEffect(() => {
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    if (prefersReducedMotion) return;
+
     const breathInterval = setInterval(() => {
       setBreathOffset((prev) => (prev + 1) % 360);
     }, 50);
@@ -78,7 +79,8 @@ export function Chameleon({
     return () => clearInterval(breathInterval);
   }, []);
 
-  const breathScale = 1 + Math.sin(breathOffset * (Math.PI / 180)) * 0.02;
+  const hidingScale = expression === "hiding" ? 0.92 : 1;
+  const breathScale = hidingScale + Math.sin(breathOffset * (Math.PI / 180)) * 0.02;
   const mainColor = hslToHex(hue, saturation, brightness);
   const lighterColor = hslToHex(hue, Math.max(0, saturation - 10), Math.min(100, brightness + 10));
   const darkerColor = hslToHex(hue, Math.min(100, saturation + 10), Math.max(0, brightness - 10));

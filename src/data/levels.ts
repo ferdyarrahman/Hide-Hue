@@ -1,4 +1,4 @@
-import { PredatorType } from "@/components/PredatorPhase";
+import { PredatorType } from "@/game/predators/predators";
 
 export interface Level {
   id: string;
@@ -49,16 +49,31 @@ function hexToHslVariations(hex: string): { hue: number; saturation: number; bri
   ];
 }
 
+// Adds a target contrast value to a set of variations, with a little jitter
+// so the 4 target picks per level aren't identical on this dimension either.
+// Contrast is only introduced from level 4 onward (PRD.md §8) so earlier
+// levels simply never call this.
+function withContrast<T extends { hue: number; saturation: number; brightness: number }>(
+  variations: T[],
+  baseContrast: number
+): (T & { contrast: number })[] {
+  const jitter = [0, -6, 6, -10];
+  return variations.map((v, i) => ({
+    ...v,
+    contrast: Math.max(0, Math.min(100, baseContrast + jitter[i % jitter.length])),
+  }));
+}
+
 const backgroundColors: Record<string, string> = {
-  "env_forest_moss_01.png": "#457B25",
-  "env_forest_floor_01.png": "#9C5624",
-  "env_leaf_dry_01.png": "#67912D",
-  "env_tree_bark_01.png": "#4D4021",
-  "env_garden_flower_01.png": "#FBF5E1",
-  "env_forest_autumn_01.png": "#E38B36",
-  "env_desert_rock_01.png": "#D5B89A",
-  "env_forest_night_01.png": "#BCDAAF",
-  "env_leaf_pattern_01.png": "#D2A452",
+  "env_forest_moss_01.webp": "#457B25",
+  "env_forest_floor_01.webp": "#9C5624",
+  "env_leaf_dry_01.webp": "#67912D",
+  "env_tree_bark_01.webp": "#4D4021",
+  "env_garden_flower_01.webp": "#FBF5E1",
+  "env_forest_autumn_01.webp": "#E38B36",
+  "env_desert_rock_01.webp": "#D5B89A",
+  "env_forest_night_01.webp": "#BCDAAF",
+  "env_leaf_pattern_01.webp": "#D2A452",
 };
 
 export const levels: Level[] = [
@@ -66,90 +81,93 @@ export const levels: Level[] = [
     id: "forest_01",
     name: "Green Leaf",
     environment: "mossy_forest",
-    background: "/assets/backgrounds/env_forest_moss_01.png",
+    background: "/assets/backgrounds/env_forest_moss_01.webp",
     predator: "eagle",
-    targetColors: hexToHslVariations(backgroundColors["env_forest_moss_01.png"]),
+    targetColors: hexToHslVariations(backgroundColors["env_forest_moss_01.webp"]),
     difficulty: 1,
   },
   {
     id: "forest_02",
     name: "Mossy Rock",
     environment: "mossy_rock",
-    background: "/assets/backgrounds/env_forest_floor_01.png",
+    background: "/assets/backgrounds/env_forest_floor_01.webp",
     predator: "snake",
-    targetColors: hexToHslVariations(backgroundColors["env_forest_floor_01.png"]),
+    targetColors: hexToHslVariations(backgroundColors["env_forest_floor_01.webp"]),
     difficulty: 2,
   },
   {
     id: "forest_03",
     name: "Dry Leaf",
     environment: "dry_leaves",
-    background: "/assets/backgrounds/env_leaf_dry_01.png",
+    background: "/assets/backgrounds/env_leaf_dry_01.webp",
     predator: "eagle",
-    targetColors: hexToHslVariations(backgroundColors["env_leaf_dry_01.png"]),
+    targetColors: hexToHslVariations(backgroundColors["env_leaf_dry_01.webp"]),
     difficulty: 3,
   },
   {
     id: "forest_04",
     name: "Tree Bark",
     environment: "tree_bark",
-    background: "/assets/backgrounds/env_tree_bark_01.png",
+    background: "/assets/backgrounds/env_tree_bark_01.webp",
     predator: "leopard",
-    targetColors: hexToHslVariations(backgroundColors["env_tree_bark_01.png"]).map(c => ({ ...c, brightness: Math.max(20, c.brightness - 10) })),
+    targetColors: withContrast(
+      hexToHslVariations(backgroundColors["env_tree_bark_01.webp"]).map(c => ({ ...c, brightness: Math.max(20, c.brightness - 10) })),
+      72
+    ),
     difficulty: 4,
   },
   {
     id: "garden_01",
     name: "Flower Garden",
     environment: "flower_garden",
-    background: "/assets/backgrounds/env_garden_flower_01.png",
+    background: "/assets/backgrounds/env_garden_flower_01.webp",
     predator: "eagle",
-    targetColors: hexToHslVariations(backgroundColors["env_garden_flower_01.png"]),
+    targetColors: withContrast(hexToHslVariations(backgroundColors["env_garden_flower_01.webp"]), 55),
     difficulty: 5,
   },
   {
     id: "forest_05",
     name: "Autumn Leaves",
     environment: "autumn_leaves",
-    background: "/assets/backgrounds/env_forest_autumn_01.png",
+    background: "/assets/backgrounds/env_forest_autumn_01.webp",
     predator: "owl",
-    targetColors: hexToHslVariations(backgroundColors["env_forest_autumn_01.png"]),
+    targetColors: withContrast(hexToHslVariations(backgroundColors["env_forest_autumn_01.webp"]), 60),
     difficulty: 6,
   },
   {
     id: "desert_01",
     name: "Desert Rock",
     environment: "desert_rock",
-    background: "/assets/backgrounds/env_desert_rock_01.png",
+    background: "/assets/backgrounds/env_desert_rock_01.webp",
     predator: "eagle",
-    targetColors: hexToHslVariations(backgroundColors["env_desert_rock_01.png"]),
+    targetColors: withContrast(hexToHslVariations(backgroundColors["env_desert_rock_01.webp"]), 30),
     difficulty: 7,
   },
   {
     id: "forest_06",
     name: "Night Forest",
     environment: "night_forest",
-    background: "/assets/backgrounds/env_forest_night_01.png",
+    background: "/assets/backgrounds/env_forest_night_01.webp",
     predator: "owl",
-    targetColors: hexToHslVariations(backgroundColors["env_forest_night_01.png"]),
+    targetColors: withContrast(hexToHslVariations(backgroundColors["env_forest_night_01.webp"]), 22),
     difficulty: 8,
   },
   {
     id: "forest_07",
     name: "Patterned Leaf",
     environment: "patterned_leaf",
-    background: "/assets/backgrounds/env_leaf_pattern_01.png",
+    background: "/assets/backgrounds/env_leaf_pattern_01.webp",
     predator: "leopard",
-    targetColors: hexToHslVariations(backgroundColors["env_leaf_pattern_01.png"]),
+    targetColors: withContrast(hexToHslVariations(backgroundColors["env_leaf_pattern_01.webp"]), 68),
     difficulty: 9,
   },
   {
     id: "forest_08",
     name: "Predator Finale",
     environment: "final_forest",
-    background: "/assets/backgrounds/env_forest_moss_01.png",
+    background: "/assets/backgrounds/env_forest_moss_01.webp",
     predator: "eagle",
-    targetColors: hexToHslVariations(backgroundColors["env_forest_moss_01.png"]),
+    targetColors: withContrast(hexToHslVariations(backgroundColors["env_forest_moss_01.webp"]), 75),
     difficulty: 10,
   },
 ];
@@ -159,11 +177,12 @@ export function getRandomTarget(level: Level) {
   return level.targetColors[index];
 }
 
-export function getRandomPlayerStart(level: Level) {
+export function getRandomPlayerStart() {
   return {
     hue: 120,
     saturation: 60,
     brightness: 50,
+    contrast: 50,
   };
 }
 

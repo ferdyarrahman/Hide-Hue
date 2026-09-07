@@ -1,16 +1,19 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { HomeScreen } from "@/components/HomeScreen";
 import { GameScreen } from "@/components/GameScreen";
 import { PredatorPhase } from "@/components/PredatorPhase";
 import { ResultPanel } from "@/components/ResultPanel";
 import { Tutorial } from "@/components/Tutorial";
+import { LevelSelect } from "@/components/LevelSelect";
+import { SettingsScreen } from "@/components/SettingsScreen";
 import { levels, Level, getRandomTarget, getRandomPlayerStart } from "@/data/levels";
-import { calculateCamouflageScore, getStarsFromRating, ColorValue } from "@/game/engine/camouflage";
-import { loadProgress, updateProgress, hasProgress } from "@/lib/progress";
+import { calculateCamouflageScore, calculateFinalScore, ColorValue, FinalScore } from "@/game/engine/camouflage";
+import { applyPredatorWeakness } from "@/game/predators/predators";
+import { loadProgress, updateProgress, hasProgress, getLevelStars, resetProgress } from "@/lib/progress";
 
-type GamePhase = "home" | "tutorial" | "playing" | "predator" | "result";
+type GamePhase = "home" | "tutorial" | "playing" | "predator" | "result" | "levelSelect" | "settings";
 
 export default function Home() {
   const [phase, setPhase] = useState<GamePhase>("home");
@@ -20,23 +23,19 @@ export default function Home() {
   const [playerColors, setPlayerColors] = useState<ColorValue>({ hue: 0, saturation: 50, brightness: 50 });
   const [isFound, setIsFound] = useState(false);
   const [currentScore, setCurrentScore] = useState<{total: number; rating: "perfect" | "excellent" | "safe" | "risky" | "found"; breakdown: {hue: number; saturation: number; brightness: number; contrast: number}}>({ total: 0, rating: "found", breakdown: { hue: 0, saturation: 0, brightness: 0, contrast: 0 } });
+  const [finalScore, setFinalScore] = useState<FinalScore>({ base: 0, camouflageBonus: 0, timeBonus: 0, perfectBonus: 0, total: 0 });
   const [showTutorial, setShowTutorial] = useState(false);
-  const [hasExistingProgress, setHasExistingProgress] = useState(false);
-
-  useEffect(() => {
-    setHasExistingProgress(hasProgress());
-  }, []);
 
   const initLevel = useCallback((level: Level) => {
     const target = getRandomTarget(level);
-    const start = getRandomPlayerStart(level);
+    const start = getRandomPlayerStart();
     setCurrentLevel(level);
     setCurrentTarget(target);
     setPlayerStart(start);
   }, []);
 
   const handlePlay = () => {
-    if (!hasExistingProgress) {
+    if (!hasProgress()) {
       setShowTutorial(true);
     } else {
       initLevel(levels[0]);
@@ -51,6 +50,24 @@ export default function Home() {
     setPhase("playing");
   };
 
+  const handleOpenLevelSelect = () => {
+    setPhase("levelSelect");
+  };
+
+  const handleSelectLevel = (index: number) => {
+    initLevel(levels[index]);
+    setPhase("playing");
+  };
+
+  const handleOpenSettings = () => {
+    setPhase("settings");
+  };
+
+  const handleResetProgress = () => {
+    resetProgress();
+    setPhase("home");
+  };
+
   const handleTutorialComplete = () => {
     setShowTutorial(false);
     initLevel(levels[0]);
@@ -58,23 +75,27 @@ export default function Home() {
   };
 
   const handleHide = useCallback(
-    (colors: ColorValue) => {
+    (colors: ColorValue, elapsedMs: number) => {
       setPlayerColors(colors);
-      const score = calculateCamouflageScore(colors, currentTarget);
+      const baseScore = calculateCamouflageScore(colors, currentTarget);
+      const score = applyPredatorWeakness(baseScore, currentLevel.predator, {
+        start: playerStart,
+        locked: colors,
+      });
       const found = score.rating === "found";
       setIsFound(found);
       setCurrentScore(score);
+      setFinalScore(calculateFinalScore(score, elapsedMs));
       setPhase("predator");
     },
-    [currentTarget]
+    [currentTarget, currentLevel, playerStart]
   );
 
   const handlePredatorComplete = useCallback(() => {
-    const stars = isFound ? 0 : getStarsFromRating(currentScore.rating);
     const levelIndex = levels.findIndex((l) => l.id === currentLevel.id);
-    updateProgress(currentLevel.id, levelIndex, currentScore.total, stars);
+    updateProgress(currentLevel.id, levelIndex, currentScore.total);
     setPhase("result");
-  }, [isFound, currentScore, currentLevel]);
+  }, [currentScore, currentLevel]);
 
   const handleRetry = () => {
     initLevel(currentLevel);
@@ -103,13 +124,40 @@ export default function Home() {
   }
 
   if (phase === "home") {
+    const progress = loadProgress();
+    const hasExistingProgress = progress.completedLevels.length > 0;
+    const totalStars = levels.reduce((sum, l) => sum + getLevelStars(l.id), 0);
+
     return (
       <HomeScreen
         onPlay={handlePlay}
         onContinue={handleContinue}
-        onSettings={() => {}}
+        onSettings={handleOpenSettings}
+        onOpenLevelSelect={handleOpenLevelSelect}
         hasProgress={hasExistingProgress}
+        levelsCompleted={progress.completedLevels.length}
+        totalLevels={levels.length}
+        totalStars={totalStars}
+        maxStars={levels.length * 3}
       />
+    );
+  }
+
+  if (phase === "levelSelect") {
+    const unlockedIndex = hasProgress() ? loadProgress().unlockedLevel : 0;
+    return (
+      <LevelSelect
+        levels={levels}
+        unlockedIndex={unlockedIndex}
+        onSelectLevel={handleSelectLevel}
+        onBack={handleBack}
+      />
+    );
+  }
+
+  if (phase === "settings") {
+    return (
+      <SettingsScreen onBack={handleBack} onResetProgress={handleResetProgress} />
     );
   }
 
@@ -121,8 +169,8 @@ export default function Home() {
         background={currentLevel.background}
         target={currentTarget}
         playerStart={playerStart}
-        stars={0}
-        onHide={(colors) => handleHide(colors)}
+        stars={getLevelStars(currentLevel.id)}
+        onHide={(colors, elapsedMs) => handleHide(colors, elapsedMs)}
         onBack={handleBack}
       />
     );
@@ -142,6 +190,7 @@ export default function Home() {
     return (
       <ResultPanel
         score={currentScore}
+        finalScore={finalScore}
         playerColor={playerColors}
         targetColor={currentTarget}
         isFound={isFound}

@@ -170,10 +170,9 @@ class AudioEngine {
     ]);
   }
 
-  // Ambient
+  // Ambient — always starts; audibility is gated live by masterGain so
+  // toggling mute mid-loop works without needing to restart the loop.
   playAmbient() {
-    if (this.isMuted) return;
-
     const ctx = this.getContext();
     const oscillator1 = ctx.createOscillator();
     const oscillator2 = ctx.createOscillator();

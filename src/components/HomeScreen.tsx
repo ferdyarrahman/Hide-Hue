@@ -10,14 +10,24 @@ interface HomeScreenProps {
   onPlay: () => void;
   onContinue: () => void;
   onSettings: () => void;
+  onOpenLevelSelect: () => void;
   hasProgress?: boolean;
+  levelsCompleted?: number;
+  totalLevels?: number;
+  totalStars?: number;
+  maxStars?: number;
 }
 
 export function HomeScreen({
   onPlay,
   onContinue,
   onSettings,
+  onOpenLevelSelect,
   hasProgress = false,
+  levelsCompleted = 0,
+  totalLevels = 0,
+  totalStars = 0,
+  maxStars = 0,
 }: HomeScreenProps) {
   const [showSplash, setShowSplash] = useState(true);
   const { isMuted, toggleMute, audio } = useAudio();
@@ -40,12 +50,17 @@ export function HomeScreen({
     onContinue();
   };
 
+  const handleOpenLevelSelect = () => {
+    audio.playClick();
+    onOpenLevelSelect();
+  };
+
   if (showSplash) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-leaf/20 to-cream">
         <div className="relative w-32 h-32 animate-bounce">
           <Image
-            src="/assets/characters/chameleon_idle.png"
+            src="/assets/characters/chameleon_idle.webp"
             alt="Hide & Hue"
             fill
             sizes="128px"
@@ -66,7 +81,7 @@ export function HomeScreen({
       <Card className="w-full max-w-sm text-center">
         <div className="relative w-24 h-24 mx-auto mb-6">
           <Image
-            src="/assets/characters/chameleon_curious.png"
+            src="/assets/characters/chameleon_curious.webp"
             alt="Hide & Hue"
             fill
             sizes="96px"
@@ -91,6 +106,15 @@ export function HomeScreen({
             </Button>
           )}
         </div>
+
+        {hasProgress && (
+          <button
+            onClick={handleOpenLevelSelect}
+            className="mt-4 text-xs text-leaf hover:text-forest transition-colors underline"
+          >
+            {levelsCompleted}/{totalLevels} levels · {totalStars}/{maxStars} ⭐
+          </button>
+        )}
 
         <div className="flex justify-center gap-4 mt-8">
           <button
@@ -119,7 +143,7 @@ export function HomeScreen({
           >
             <div className="relative w-6 h-6">
               <Image
-                src="/assets/ui/ui_settings.png"
+                src="/assets/ui/ui_settings.webp"
                 alt="Settings"
                 fill
                 sizes="24px"

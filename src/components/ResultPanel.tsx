@@ -4,11 +4,12 @@ import { useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { CamouflageScore, ColorValue } from "@/game/engine/camouflage";
+import { CamouflageScore, ColorValue, FinalScore, getStarsFromRating } from "@/game/engine/camouflage";
 import { useAudio } from "@/hooks/useAudio";
 
 interface ResultPanelProps {
   score: CamouflageScore;
+  finalScore: FinalScore;
   playerColor: ColorValue;
   targetColor: ColorValue;
   isFound: boolean;
@@ -42,6 +43,7 @@ function getColorDifference(player: ColorValue, target: ColorValue): string {
 
 export function ResultPanel({
   score,
+  finalScore,
   playerColor,
   targetColor,
   isFound,
@@ -51,16 +53,8 @@ export function ResultPanel({
 }: ResultPanelProps) {
   const { audio } = useAudio();
 
-  const getStars = () => {
-    if (isFound) return 0;
-    return score.rating === "perfect"
-      ? 3
-      : score.rating === "excellent"
-      ? 2
-      : 1;
-  };
-
-  const stars = getStars();
+  const stars = isFound ? 0 : getStarsFromRating(score.rating);
+  const hasContrast = targetColor.contrast !== undefined;
   const playerRgb = hslToRgb(playerColor.hue, playerColor.saturation, playerColor.brightness);
   const targetRgb = hslToRgb(targetColor.hue, targetColor.saturation, targetColor.brightness);
   const colorHint = getColorDifference(playerColor, targetColor);
@@ -99,7 +93,7 @@ export function ResultPanel({
           {[1, 2, 3].map((i) => (
             <div key={i} className="relative w-8 h-8">
               <Image
-                src="/assets/ui/ui_star.png"
+                src="/assets/ui/ui_star.webp"
                 alt="Star"
                 fill
                 sizes="32px"
@@ -163,6 +157,15 @@ export function ResultPanel({
             {score.total}%
           </div>
           <p className="text-xs text-leaf">Camouflage Match</p>
+          <div className="text-lg font-bold text-coral mt-1">
+            {finalScore.total} pts
+          </div>
+          {finalScore.timeBonus > 0 && (
+            <p className="text-[10px] text-leaf">
+              +{finalScore.timeBonus} speed bonus
+              {finalScore.perfectBonus > 0 && ` · +${finalScore.perfectBonus} perfect bonus`}
+            </p>
+          )}
         </div>
 
         {/* Score Breakdown */}
@@ -213,6 +216,22 @@ export function ResultPanel({
                 </span>
               </div>
             </div>
+            {hasContrast && (
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-forest">Contrast</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-20 h-1.5 bg-forest/20 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-leaf rounded-full"
+                      style={{ width: `${score.breakdown.contrast}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-leaf w-8 text-right">
+                    {score.breakdown.contrast}%
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

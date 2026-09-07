@@ -13,27 +13,27 @@ const tutorialSteps = [
   {
     title: "Welcome to Hide & Hue!",
     description: "Help the chameleon blend into its surroundings to avoid predators.",
-    image: "/assets/characters/chameleon_idle.png",
+    image: "/assets/characters/chameleon_idle.webp",
   },
   {
     title: "Step 1: Look at the Environment",
     description: "Observe the colors and patterns of the hiding spot.",
-    image: "/assets/ui/tutorial_observe.jpeg",
+    image: "/assets/ui/tutorial_observe.webp",
   },
   {
     title: "Step 2: Adjust Colors",
     description: "Use the sliders to match the chameleon's colors to the environment.",
-    image: "/assets/ui/tutorial_adjust.jpeg",
+    image: "/assets/ui/tutorial_adjust.webp",
   },
   {
     title: "Step 3: Hide!",
     description: "When you're ready, tap the HIDE NOW button to lock your camouflage.",
-    image: "/assets/ui/tutorial_hide.jpeg",
+    image: "/assets/ui/tutorial_hide.webp",
   },
   {
     title: "Step 4: Survive!",
     description: "Watch as the predator searches. If your camouflage is good enough, you'll be safe!",
-    image: "/assets/ui/tutorial_survive.jpeg",
+    image: "/assets/ui/tutorial_survive.webp",
   },
 ];
 

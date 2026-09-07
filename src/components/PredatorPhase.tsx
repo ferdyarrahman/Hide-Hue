@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAudio } from "@/hooks/useAudio";
-
-export type PredatorType = "eagle" | "snake" | "leopard" | "owl";
+import { PREDATOR_CONFIG, PredatorType } from "@/game/predators/predators";
 
 interface PredatorPhaseProps {
   predator: PredatorType;
@@ -13,10 +12,10 @@ interface PredatorPhaseProps {
 }
 
 const predatorAssets: Record<PredatorType, string> = {
-  eagle: "/assets/predators/predator_eagle.png",
-  snake: "/assets/predators/predator_snake.png",
-  leopard: "/assets/predators/predator_leopard.png",
-  owl: "/assets/predators/predator_owl.png",
+  eagle: "/assets/predators/predator_eagle.webp",
+  snake: "/assets/predators/predator_snake.webp",
+  leopard: "/assets/predators/predator_leopard.webp",
+  owl: "/assets/predators/predator_owl.webp",
 };
 
 export function PredatorPhase({
@@ -47,15 +46,19 @@ export function PredatorPhase({
 
       return () => clearInterval(timer);
     }
+    // `countdown` intentionally excluded: this effect must only run once
+    // when entering the countdown phase (it owns its own interval and reads
+    // the latest countdown via the setCountdown updater's `prev`); adding it
+    // would restart the interval every second.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, audio]);
 
   useEffect(() => {
     if (phase === "searching") {
       audio.playPredatorAlert();
-      const searchDuration = predator === "snake" ? 4000 : 3000;
       const timer = setTimeout(() => {
         setPhase("result");
-      }, searchDuration);
+      }, PREDATOR_CONFIG[predator].searchDurationMs);
 
       return () => clearTimeout(timer);
     }
@@ -76,20 +79,11 @@ export function PredatorPhase({
     }
   }, [phase, isFound, audio, onComplete]);
 
-  const getSearchMessage = () => {
-    switch (predator) {
-      case "eagle":
-        return "The eagle is scanning the area...";
-      case "snake":
-        return "The snake is slithering closer...";
-      case "leopard":
-        return "The leopard is prowling nearby...";
-      case "owl":
-        return "The owl is watching from above...";
-    }
-  };
-
   const predatorSrc = predatorAssets[predator];
+  const searchAnimation =
+    PREDATOR_CONFIG[predator].movementStyle === "aerial"
+      ? "hover-bob 1.4s ease-in-out infinite"
+      : "prowl-sway 1.2s ease-in-out infinite";
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
@@ -129,7 +123,7 @@ export function PredatorPhase({
                 sizes="128px"
                 style={{
                   objectFit: "contain",
-                  animation: "spin 2s linear infinite",
+                  animation: searchAnimation,
                 }}
                 priority
               />
@@ -137,7 +131,7 @@ export function PredatorPhase({
             <h2 className="text-2xl font-bold text-forest mb-2">
               Predator Alert!
             </h2>
-            <p className="text-leaf">{getSearchMessage()}</p>
+            <p className="text-leaf">{PREDATOR_CONFIG[predator].searchMessage}</p>
             <div className="mt-4 flex justify-center gap-2">
               {[1, 2, 3].map((i) => (
                 <div
@@ -154,7 +148,7 @@ export function PredatorPhase({
           <>
             <div className="relative w-32 h-32 mx-auto mb-4">
               <Image
-                src={isFound ? predatorSrc : "/assets/characters/chameleon_happy.png"}
+                src={isFound ? predatorSrc : "/assets/characters/chameleon_happy.webp"}
                 alt={isFound ? predator : "chameleon safe"}
                 fill
                 sizes="128px"

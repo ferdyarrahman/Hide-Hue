@@ -60,3 +60,26 @@ html, body {
     padding-right: env(safe-area-inset-right);
   }
 }
+
+/* Predator search animations (PredatorPhase) — ground predators prowl
+   side to side, aerial predators hover with a slight tilt. */
+@keyframes prowl-sway {
+  0%, 100% { transform: translateX(-8px) rotate(-3deg); }
+  50% { transform: translateX(8px) rotate(3deg); }
+}
+
+@keyframes hover-bob {
+  0%, 100% { transform: translateY(-5px) rotate(-2deg); }
+  50% { transform: translateY(5px) rotate(2deg); }
+}
+
+/* Accessibility: respect the OS-level reduced-motion preference
+   (Guide.md §15) by neutralizing all CSS animations/transitions. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
